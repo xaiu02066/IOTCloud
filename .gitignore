@@ -1,0 +1,63 @@
+# ---------- 操作系统 / 编辑器 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-*
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+venv/
+.venv/
+env/
+.Python
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# ---------- Node.js ----------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.out/
+.next/
+coverage/
+
+# ---------- 构建 / 依赖 ----------
+target/
+bin/
+obj/
+*.class
+*.jar
+*.war
+
+# ---------- 环境变量 / 密钥（切勿提交） ----------
+.env
+.env.local
+*.pem
+*.key
+secrets.json
+credentials.json
+
+# ---------- 日志 / 临时文件 ----------
+logs/
+*.log
+tmp/
+.cache/
+
+# ---------- 大文件 / 数据 ----------
+*.zip
+*.tar.gz
+*.rar
+data/raw/
+!data/.gitkeep
