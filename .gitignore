@@ -61,3 +61,12 @@ tmp/
 *.rar
 data/raw/
 !data/.gitkeep
+
+# ---------- 项目内部 / 工具目录（切勿提交） ----------
+# .workbuddy/ 为本地记忆与工作目录，切勿提交
+.workbuddy/
+*.pyc
+__pycache__/
+
+# 说明：.env 已被上方"环境变量/密钥"段忽略；
+#       .env.example 为脱敏样例，可以安全提交。
