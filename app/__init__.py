@@ -40,9 +40,9 @@ def create_app(config_name: str = "development") -> Flask:
     # ---- 注册蓝图 ----
     # F1 用户管理（注册 / 登录 / 当前用户）
     from app.api.auth import auth_bp
-
     app.register_blueprint(auth_bp)
-    # TODO: 后续在此注册其它蓝图
-    #   from app.api import product_bp, device_bp, thing_model_bp, ...
-    #   app.register_blueprint(product_bp)
+
+    # F2 产品管理 / F3 物模型（产品 + 属性/服务/事件 CRUD）
+    from app.api.product import product_bp
+    app.register_blueprint(product_bp)
     return app

@@ -6,6 +6,10 @@
 import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
+
+load_dotenv()  # 加载项目根目录 .env（已被 .gitignore 忽略，不入库）
+
 
 class Config:
     """基础配置。"""

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智慧农业环境监控平台 · 系统原型</title>
+<style>
+  :root{
+    --green:#2e9e5b; --green-d:#1f7d44; --green-l:#e8f6ec;
+    --ink:#1f2937; --sub:#6b7280; --line:#e5e7eb; --bg:#f4f6f8;
+    --card:#ffffff; --warn:#f59e0b; --danger:#ef4444; --blue:#3b82f6;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+  button{font-family:inherit;cursor:pointer;border:none}
+  /* ---------- 登录 ---------- */
+  #login{height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1f7d44,#2e9e5b)}
+  .login-card{width:380px;background:#fff;border-radius:16px;padding:32px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+  .login-card h1{font-size:20px;color:var(--green-d);text-align:center;margin-bottom:4px}
+  .login-card .sub{text-align:center;color:var(--sub);font-size:12px;margin-bottom:22px}
+  .role-seg{display:flex;gap:8px;margin-bottom:18px}
+  .role-seg button{flex:1;padding:9px 0;border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--sub);font-size:13px}
+  .role-seg button.on{background:var(--green-l);border-color:var(--green);color:var(--green-d);font-weight:600}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px}
+  .field input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  .field input:focus{outline:none;border-color:var(--green)}
+  .btn-primary{width:100%;padding:11px;border-radius:8px;background:var(--green);color:#fff;font-size:15px;font-weight:600}
+  .btn-primary:hover{background:var(--green-d)}
+  .login-tip{margin-top:14px;font-size:11px;color:var(--sub);text-align:center;line-height:1.6}
+  /* ---------- 应用壳 ---------- */
+  #app{display:none;height:100vh}
+  .sidebar{width:210px;background:#1f2937;color:#cbd5e1;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0}
+  .sidebar .logo{padding:18px 20px;color:#fff;font-weight:700;font-size:15px;border-bottom:1px solid #374151;display:flex;align-items:center;gap:8px}
+  .sidebar .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--green)}
+  .nav{padding:10px 0;flex:1;overflow:auto}
+  .nav .item{padding:11px 20px;font-size:14px;display:flex;align-items:center;gap:10px;color:#cbd5e1}
+  .nav .item:hover{background:#374151;color:#fff}
+  .nav .item.active{background:var(--green);color:#fff}
+  .nav .item .ic{width:18px;text-align:center}
+  .sidebar .me{padding:14px 20px;border-top:1px solid #374151;font-size:12px;color:#9ca3af}
+  .sidebar .me b{color:#fff;display:block;font-size:13px}
+  .main{margin-left:210px;display:flex;flex-direction:column;height:100vh}
+  .topbar{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+  .topbar .title{font-size:16px;font-weight:600}
+  .topbar .role-badge{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--green-l);color:var(--green-d)}
+  .topbar .right{display:flex;align-items:center;gap:14px;color:var(--sub);font-size:13px}
+  .content{padding:22px;overflow:auto;flex:1}
+  /* ---------- 卡片/网格 ---------- */
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+  .card h3{font-size:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+  .card h3 .more{font-size:12px;color:var(--green);cursor:pointer}
+  .stat .num{font-size:28px;font-weight:700}
+  .stat .lbl{color:var(--sub);font-size:12px;margin-top:4px}
+  .stat .up{color:var(--green);font-size:12px}
+  /* ---------- 表格 ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--sub);font-weight:600;background:#fafbfc;font-size:12px}
+  tr:hover td{background:#f9fafb}
+  .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px}
+  .tag.ok{background:var(--green-l);color:var(--green-d)}
+  .tag.off{background:#fee2e2;color:#b91c1c}
+  .tag.warn{background:#fef3c7;color:#92400e}
+  .tag.info{background:#dbeafe;color:#1d4ed8}
+  .tag.blue{background:#ede9fe;color:#6d28d9}
+  .btn-sm{padding:5px 11px;border-radius:6px;font-size:12px;background:var(--green-l);color:var(--green-d)}
+  .btn-sm:hover{background:#d6efe0}
+  .btn-sm.dis{background:#f3f4f6;color:#9ca3af}
+  .btn-sm.danger{background:#fee2e2;color:#b91c1c}
+  /* ---------- 控件 ---------- */
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .toolbar .left{display:flex;gap:8px;align-items:center}
+  .toolbar input,.toolbar select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+  .btn-add{padding:8px 14px;border-radius:8px;background:var(--green);color:#fff;font-size:13px}
+  .btn-add:hover{background:var(--green-d)}
+  /* 开关 */
+  .switch{position:relative;width:52px;height:28px;display:inline-block}
+  .switch input{display:none}
+  .switch .sl{position:absolute;inset:0;background:#cbd5e1;border-radius:20px;transition:.2s}
+  .switch .sl:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked + .sl{background:var(--green)}
+  .switch input:checked + .sl:before{transform:translateX(24px)}
+  .kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .kv:last-child{border:none}
+  .kv .k{color:var(--sub)}
+  .kv .v{font-weight:600}
+  .pill{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--green-l);color:var(--green-d);margin-left:6px}
+  .disabled-mask{opacity:.5;pointer-events:none}
+  .note{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px}
+  .chart-wrap{width:100%}
+  svg{display:block;width:100%}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--sub);margin-top:8px}
+  .legend i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .screen{display:none}
+  .screen.active{display:block}
+  .section-title{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .section-title small{color:var(--sub);font-weight:400;font-size:12px}
+  .tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+  .tabs .t{padding:9px 16px;font-size:13px;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}
+  .tabs .t.on{color:var(--green-d);border-color:var(--green);font-weight:600}
+  .row{display:flex;gap:16px}
+  .col{flex:1}
+  pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;font-size:12px;overflow:auto;line-height:1.5;max-height:360px}
+  .back{color:var(--green);font-size:13px;cursor:pointer;margin-bottom:12px;display:inline-block}
+  .modal-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);align-items:center;justify-content:center;z-index:50}
+  .modal-mask.show{display:flex}
+  .modal{background:#fff;width:420px;border-radius:12px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .modal h3{margin-bottom:16px}
+  .modal .field input{padding:9px}
+  .modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .modal .acts .cancel{padding:8px 16px;border-radius:8px;background:#f3f4f6;color:var(--sub)}
+</style>
+</head>
+<body>
+
+<!-- ===================== 登录 ===================== -->
+<div id="login">
+  <div class="login-card">
+    <h1>🌱 智慧农业环境监控平台</h1>
+    <div class="sub">Smart Agriculture Monitoring Platform · 系统原型演示</div>
+    <div class="role-seg" id="roleSeg">
+      <button data-role="grower" class="on">种植户</button>
+      <button data-role="observer">观察员</button>
+      <button data-role="admin">管理员</button>
+    </div>
+    <div class="field"><label>用户名</label><input id="loginUser" placeholder="如 grower01" value="grower01" /></div>
+    <div class="field"><label>密码</label><input id="loginPwd" type="password" placeholder="••••••" value="123456" /></div>
+    <button class="btn-primary" onclick="doLogin()">登 录</button>
+    <div class="login-tip">原型演示，无需真实账号。<br/>切换上方角色可体验不同权限视图（观察员仅只读、管理员含产品与用户治理）。</div>
+  </div>
+</div>
+
+<!-- ===================== 应用 ===================== -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="dot"></span> 环境监控平台</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="me">
+      <b id="meName">种植户</b>
+      <span id="meRole">grower</span> · <span id="meFarm">向阳大棚</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="title" id="screenTitle">数据看板</div>
+      <div class="right">
+        <span class="role-badge" id="topRole">种植户</span>
+        <span>🔔</span>
+        <button class="btn-sm dis" onclick="doLogout()">退出</button>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<!-- 通用弹窗 -->
+<div class="modal-mask" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">标题</h3>
+    <div id="modalBody"></div>
+    <div class="acts"><button class="cancel" onclick="closeModal()">取消</button><button class="btn-add" id="modalOk">确定</button></div>
+  </div>
+</div>
+
+<script>
+/* ============ 角色与导航配置 ============ */
+const ROLES = {
+  grower:{name:'种植户', nav:[
+    {id:'dash',ic:'📊',t:'数据看板'},
+    {id:'devices',ic:'🌡️',t:'设备管理'},
+    {id:'history',ic:'📈',t:'历史曲线'},
+    {id:'alerts',ic:'🔔',t:'告警中心'},
+    {id:'auth',ic:'👥',t:'协作授权'},
+  ]},
+  observer:{name:'观察员', nav:[
+    {id:'dash',ic:'📊',t:'数据看板'},
+    {id:'devices',ic:'🌡️',t:'设备管理'},
+    {id:'history',ic:'📈',t:'历史曲线'},
+    {id:'alerts',ic:'🔔',t:'告警中心'},
+  ]},
+  admin:{name:'管理员', nav:[
+    {id:'dash',ic:'📊',t:'平台概览'},
+    {id:'products',ic:'📦',t:'产品管理'},
+    {id:'devices',ic:'🌡️',t:'设备管理'},
+    {id:'history',ic:'📈',t:'历史曲线'},
+    {id:'alerts',ic:'🔔',t:'告警中心'},
+    {id:'users',ic:'🛡️',t:'用户与权限'},
+  ]},
+};
+let curRole='grower', curScreen='dash';
+
+/* 模拟数据：基于 env_ctrl 物模型 */
+const devices=[
+  {name:'1号棚-测控仪',loc:'东棚',product:'env_ctrl',status:'on',temp:27.3,hum:64,soil:38,fan:true,last:'10秒前'},
+  {name:'2号棚-测控仪',loc:'东棚',product:'env_ctrl',status:'on',temp:31.8,hum:58,soil:29,fan:true,last:'12秒前'},
+  {name:'3号棚-测控仪',loc:'西棚',product:'env_ctrl',status:'on',temp:24.1,hum:71,soil:45,fan:false,last:'8秒前'},
+  {name:'育苗棚-测控仪',loc:'育苗区',product:'env_ctrl',status:'off',temp:0,hum:0,soil:0,fan:false,last:'2小时前'},
+  {name:'露地-测控仪',loc:'大田',product:'env_ctrl',status:'on',temp:29.6,hum:52,soil:22,fan:false,last:'15秒前'},
+];
+const props=[
+  {name:'空气温度',id:'air_temperature',type:'float',unit:'°C',mode:'只读'},
+  {name:'空气湿度',id:'air_humidity',type:'float',unit:'%RH',mode:'只读'},
+  {name:'土壤湿度',id:'soil_humidity',type:'float',unit:'%',mode:'只读'},
+  {name:'风机状态',id:'fan_status',type:'bool',unit:'-',mode:'只读'},
+  {name:'温度告警阈值',id:'temp_threshold',type:'float',unit:'°C',mode:'读写'},
+  {name:'湿度告警阈值',id:'humid_threshold',type:'float',unit:'%',mode:'读写'},
+];
+const services=[
+  {name:'风机控制',id:'set_fan',in:'fan_state(bool)',out:'result(string)'},
+  {name:'设置告警阈值',id:'set_threshold',in:'temp_max(float),humid_min(float)',out:'result(string)'},
+];
+const events=[
+  {name:'温度超限告警',id:'temp_alarm',pos:'设备端',out:'temperature,threshold,timestamp'},
+  {name:'土壤湿度低告警',id:'dry_alarm',pos:'设备端',out:'humidity,threshold,timestamp'},
+  {name:'设备上线',id:'online',pos:'平台',out:'timestamp'},
+  {name:'设备下线',id:'offline',pos:'平台',out:'timestamp'},
+];
+const rules=[
+  {name:'高温告警',metric:'air_temperature',op:'>',th:35,level:'critical',on:true},
+  {name:'土壤缺水告警',metric:'soil_humidity',op:'<',th:20,level:'warning',on:true},
+];
+const alertLogs=[
+  {dev:'2号棚-测控仪',type:'温度超限',val:'31.8°C / 阈值35',lv:'critical',status:'未处理',t:'12:03'},
+  {dev:'露地-测控仪',type:'土壤缺水',val:'22% / 阈值20',lv:'warning',status:'已处理',t:'11:40'},
+  {dev:'1号棚-测控仪',type:'温度超限',val:'36.2°C / 阈值35',lv:'critical',status:'已处理',t:'09:15'},
+];
+const users=[
+  {name:'grower01',role:'种植户',farm:'向阳大棚',status:'正常'},
+  {name:'observer_li',role:'观察员',farm:'—',status:'正常'},
+  {name:'observer_wang',role:'观察员',farm:'—',status:'正常'},
+  {name:'admin_root',role:'管理员',farm:'—',status:'正常'},
+];
+const auths=[ {grower:'grower01',observer:'observer_li',scope:'东棚全部设备',status:'已授权'} ];
+
+/* ============ 登录/登出 ============ */
+document.querySelectorAll('#roleSeg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#roleSeg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); curRole=b.dataset.role;
+});
+function doLogin(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='flex';
+  buildNav(); showScreen('dash');
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex';
+}
+function buildNav(){
+  const r=ROLES[curRole];
+  document.getElementById('meName').textContent=r.name;
+  document.getElementById('meRole').textContent=curRole;
+  document.getElementById('topRole').textContent=r.name;
+  const nav=document.getElementById('nav'); nav.innerHTML='';
+  r.nav.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='item'+(n.id===curScreen?' active':'');
+    d.innerHTML=`<span class="ic">${n.ic}</span>${n.t}`;
+    d.onclick=()=>showScreen(n.id);
+    nav.appendChild(d);
+  });
+}
+const titles={dash:'数据看板',devices:'设备管理',history:'历史曲线',alerts:'告警中心',products:'产品管理',users:'用户与权限',auth:'协作授权',device:'设备详情'};
+function showScreen(id){
+  curScreen=id; buildNav();
+  document.getElementById('screenTitle').textContent=titles[id]||'';
+  const c=document.getElementById('content');
+  const map={dash:scrDash,devices:scrDevices,history:scrHistory,alerts:scrAlerts,products:scrProducts,users:scrUsers,auth:scrAuth};
+  c.innerHTML=(map[id]||scrDash)();
+  bindScreen(id);
+}
+
+/* ============ 内联 SVG 图表 ============ */
+function lineChart(series,labels){
+  // series: [{color,data:[..]}]; 返回 svg 字符串
+  const W=560,H=200,pad=28; const max=40,min=0;
+  let paths='';
+  series.forEach(s=>{
+    const pts=s.data.map((v,i)=>{
+      const x=pad+(W-2*pad)*i/(s.data.length-1);
+      const y=H-pad-(H-2*pad)*(v-min)/(max-min);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    paths+=`<polyline fill="none" stroke="${s.color}" stroke-width="2.2" points="${pts}"/>`;
+    s.data.forEach((v,i)=>{
+      const x=pad+(W-2*pad)*i/(s.data.length-1);
+      const y=H-pad-(H-2*pad)*(v-min)/(max-min);
+      paths+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="${s.color}"/>`;
+    });
+  });
+  // Y 轴网格
+  let grid='';
+  for(let g=0;g<=4;g++){const y=pad+(H-2*pad)*g/4; const val=(max-min)*(1-g/4)+min; grid+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#eef0f2"/><text x="4" y="${y+4}" font-size="10" fill="#9ca3af">${val.toFixed(0)}</text>`;}
+  return `<svg viewBox="0 0 ${W} ${H}">${grid}${paths}</svg>`;
+}
+function donut(on,off){
+  const total=on+off||1, pct=on/total; const R=54,C=2*Math.PI*R;
+  const dash=(C*pct).toFixed(1);
+  return `<svg viewBox="0 0 140 140" style="max-width:160px;margin:auto">
+    <circle cx="70" cy="70" r="${R}" fill="none" stroke="#e5e7eb" stroke-width="16"/>
+    <circle cx="70" cy="70" r="${R}" fill="none" stroke="#2e9e5b" stroke-width="16" stroke-dasharray="${dash} ${C}" transform="rotate(-90 70 70)"/>
+    <text x="70" y="66" text-anchor="middle" font-size="22" font-weight="700" fill="#1f2937">${on}</text>
+    <text x="70" y="86" text-anchor="middle" font-size="11" fill="#6b7280">在线/共${total}</text></svg>`;
+}
+
+/* ============ 各屏 ============ */
+function scrDash(){
+  const onN=devices.filter(d=>d.status==='on').length;
+  const tempData=[24,26,25,28,30,29,27,31,33,30,28,27,26,29,31,30,28,27,26,25,24,26,27,28];
+  const humData=[60,62,58,64,66,63,68,61,59,64,67,65,62,60,58,63,66,64,62,60,61,63,64,62];
+  return `
+  <div class="grid g4">
+    <div class="card stat"><div class="num">${devices.length}</div><div class="lbl">我的设备</div></div>
+    <div class="card stat"><div class="num" style="color:var(--green)">${onN}</div><div class="lbl">在线设备 · <span class="up">正常</span></div></div>
+    <div class="card stat"><div class="num" style="color:var(--danger)">${alertLogs.filter(a=>a.status==='未处理').length}</div><div class="lbl">今日未处理告警</div></div>
+    <div class="card stat"><div class="num">26.4°C</div><div class="lbl">平均空气温度</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>实时温湿度趋势（近24h）<span class="more" onclick="showScreen('history')">查看历史 →</span></h3>
+      <div class="chart-wrap">${lineChart([{color:'#ef4444',data:tempData},{color:'#3b82f6',data:humData}])}</div>
+      <div class="legend"><span><i style="background:#ef4444"></i>空气温度(°C)</span><span><i style="background:#3b82f6"></i>空气湿度(%RH)</span></div>
+    </div>
+    <div class="card">
+      <h3>设备在线分布</h3>
+      <div>${donut(onN,devices.length-onN)}</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>最新告警<span class="more" onclick="showScreen('alerts')">全部 →</span></h3>
+    <table><thead><tr><th>设备</th><th>类型</th><th>数值</th><th>级别</th><th>状态</th><th>时间</th></tr></thead>
+    <tbody>${alertLogs.map(a=>`<tr><td>${a.dev}</td><td>${a.type}</td><td>${a.val}</td><td><span class="tag ${a.lv==='critical'?'off':'warn'}">${a.lv==='critical'?'严重':'警告'}</span></td><td>${a.status}</td><td>${a.t}</td></tr>`).join('')}</tbody></table>
+  </div>`;
+}
+function scrDevices(){
+  const canEdit=curRole!=='observer';
+  return `
+  ${curRole==='observer'?'<div class="note">当前为观察员视图：仅可查看设备数据，无控制/编辑权限。</div>':''}
+  <div class="toolbar">
+    <div class="left"><input placeholder="搜索设备名称/位置"/><select><option>全部状态</option><option>在线</option><option>停用</option></select></div>
+    ${canEdit?'<button class="btn-add" onclick="openAddDevice()">+ 添加设备</button>':'<span class="tag info">只读</span>'}
+  </div>
+  <div class="card" style="padding:0">
+    <table><thead><tr><th>设备名称</th><th>位置</th><th>产品</th><th>状态</th><th>空气温度</th><th>土壤湿度</th><th>风机</th><th>最近上报</th><th>操作</th></tr></thead>
+    <tbody>${devices.map((d,i)=>`<tr>
+      <td><b>${d.name}</b></td><td>${d.loc}</td><td><span class="tag blue">${d.product}</span></td>
+      <td><span class="tag ${d.status==='on'?'ok':'off'}">${d.status==='on'?'在线':'停用'}</span></td>
+      <td>${d.status==='on'?d.temp+'°C':'—'}</td><td>${d.status==='on'?d.soil+'%':'—'}</td>
+      <td>${d.status==='on'?(d.fan?'运转':'停止'):'—'}</td>
+      <td>${d.last}</td>
+      <td><button class="btn-sm" onclick="openDevice(${i})">查看</button>
+      ${canEdit&&d.status==='on'?'<button class="btn-sm" onclick="openDevice('+i+')">控制</button>':''}
+      ${canEdit?`<button class="btn-sm danger" onclick="disableDev(${i})">停用</button>`:''}</td>
+    </tr>`).join('')}</tbody></table>
+  </div>`;
+}
+function openDevice(i){
+  const d=devices[i]; const canCtrl=curRole!=='observer'&&d.status==='on';
+  const c=document.getElementById('content');
+  c.innerHTML=`<span class="back" onclick="showScreen('devices')">← 返回设备管理</span>
+    <div class="section-title">${d.name} <small>${d.loc} · ${d.product} · ${d.status==='on'?'<span class="tag ok">在线</span>':'<span class="tag off">停用</span>'}</small></div>
+    <div class="grid g4">
+      <div class="card stat"><div class="num">${d.temp}°C</div><div class="lbl">空气温度</div></div>
+      <div class="card stat"><div class="num">${d.hum}%RH</div><div class="lbl">空气湿度</div></div>
+      <div class="card stat"><div class="num">${d.soil}%</div><div class="lbl">土壤湿度</div></div>
+      <div class="card stat"><div class="num" style="color:${d.fan?'var(--green)':'#9ca3af'}">${d.fan?'运转':'停止'}</div><div class="lbl">风机状态</div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>设备控制 ${canCtrl?'':'<span class="tag off">不可控</span>'}</h3>
+      <div class="${canCtrl?'':'disabled-mask'}">
+        <div class="kv"><span class="k">风机开关（服务 set_fan）</span>
+          <label class="switch"><input type="checkbox" ${d.fan?'checked':''} onchange="toggleFan(${i},this.checked)"><span class="sl"></span></label></div>
+        <div class="kv"><span class="k">温度告警阈值（读写属性 temp_threshold）</span><span class="v"><input id="tth" value="35" style="width:70px;padding:5px;border:1px solid #e5e7eb;border-radius:6px"></span></div>
+        <div class="kv"><span class="k">湿度告警阈值（读写属性 humid_threshold）</span><span class="v"><input id="hth" value="20" style="width:70px;padding:5px;border:1px solid #e5e7eb;border-radius:6px"></span></div>
+        <button class="btn-add" style="margin-top:10px" onclick="pushThreshold(${i})">下发阈值（set_threshold）</button>
+      </div>
+    </div>`;
+  document.getElementById('screenTitle').textContent=d.name;
+}
+function toggleFan(i,on){
+  devices[i].fan=on;
+  toast(`已下发 set_fan(fan_state=${on})，等待设备回执…`);
+}
+function pushThreshold(i){
+  const t=document.getElementById('tth').value, h=document.getElementById('hth').value;
+  toast(`已调用 set_threshold(temp_max=${t}, humid_min=${h})，设备本地存储更新中…`);
+}
+function disableDev(i){ devices[i].status='off'; showScreen('devices'); toast('设备已停用'); }
+function scrHistory(){
+  const tempData=[24,26,25,28,30,29,27,31,33,30,28,27,26,29,31,30,28,27,26,25,24,26,27,28];
+  const humData=[60,62,58,64,66,63,68,61,59,64,67,65,62,60,58,63,66,64,62,60,61,63,64,62];
+  return `
+  <div class="toolbar"><div class="left">
+    <select><option>1号棚-测控仪</option><option>2号棚-测控仪</option><option>3号棚-测控仪</option></select>
+    <select><option>近24小时</option><option>近7天</option><option>近30天</option></select>
+    <select><option>空气温度</option><option>空气湿度</option><option>土壤湿度</option></select>
+  </div></div>
+  <div class="card">
+    <h3>空气温度 / 空气湿度 历史曲线</h3>
+    <div class="chart-wrap">${lineChart([{color:'#ef4444',data:tempData},{color:'#3b82f6',data:humData}])}</div>
+    <div class="legend"><span><i style="background:#ef4444"></i>空气温度(°C)</span><span><i style="background:#3b82f6"></i>空气湿度(%RH)</span></div>
+  </div>`;
+}
+function scrAlerts(){
+  const canEdit=curRole!=='observer';
+  return `
+  <div class="tabs"><div class="t on" onclick="tab(this);renderAlertRules()">告警规则</div><div class="t" onclick="tab(this);renderAlertLogs()">告警记录</div></div>
+  <div id="alertBody"></div>`;
+}
+function renderAlertRules(){
+  const canEdit=curRole!=='observer';
+  document.getElementById('alertBody').innerHTML=`
+    <div class="toolbar"><div class="left"><span class="tag info">规则表 alarm_rules</span></div>${canEdit?'<button class="btn-add" onclick="openAddRule()">+ 新增规则</button>':'<span class="tag info">只读</span>'}</div>
+    <div class="card" style="padding:0"><table><thead><tr><th>规则名</th><th>监测指标</th><th>条件</th><th>级别</th><th>启用</th>${canEdit?'<th>操作</th>':''}</tr></thead>
+    <tbody>${rules.map((r,i)=>`<tr><td>${r.name}</td><td><span class="tag blue">${r.metric}</span></td><td>${r.metric} ${r.op} ${r.th}</td><td><span class="tag ${r.level==='critical'?'off':'warn'}">${r.level==='critical'?'严重':'警告'}</span></td><td>${r.on?'<span class="tag ok">是</span>':'<span class="tag off">否</span>'}</td>${canEdit?`<td><button class="btn-sm" onclick="toast('编辑规则（原型）')">编辑</button></td>`:''}</tr>`).join('')}</tbody></table></div>`;
+}
+function renderAlertLogs(){
+  document.getElementById('alertBody').innerHTML=`
+    <div class="card" style="padding:0"><table><thead><tr><th>设备</th><th>类型</th><th>数值</th><th>级别</th><th>状态</th><th>时间</th></tr></thead>
+    <tbody>${alertLogs.map(a=>`<tr><td>${a.dev}</td><td>${a.type}</td><td>${a.val}</td><td><span class="tag ${a.lv==='critical'?'off':'warn'}">${a.lv==='critical'?'严重':'警告'}</span></td><td>${a.status==='未处理'?'<span class="tag warn">未处理</span>':'<span class="tag ok">已处理</span>'}</td><td>${a.t}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function scrProducts(){
+  const canEdit=curRole==='admin';
+  if(curRole==='observer') return '<div class="note">观察员无产品管理权限。</div>';
+  return `
+  ${canEdit?'':'<div class="note">种植户可查看产品与物模型（只读）。产品定义由管理员维护。</div>'}
+  <div class="toolbar"><div class="left"><span class="tag blue">env_ctrl</span><b>智能环境测控仪</b><span class="pill">集数据采集与设备控制于一体</span></div></div>
+  <div class="card">
+    <div class="tabs">
+      <div class="t on" onclick="tab(this);renderProps()">属性（6）</div>
+      <div class="t" onclick="tab(this);renderServices()">服务（2）</div>
+      <div class="t" onclick="tab(this);renderEvents()">事件（4）</div>
+      <div class="t" onclick="tab(this);renderTM()">物模型 JSON</div>
+    </div>
+    <div id="pmBody"></div>
+  </div>`;
+}
+function renderProps(){
+  document.getElementById('pmBody').innerHTML=`<div class="card" style="padding:0"><table><thead><tr><th>属性名称</th><th>标识符</th><th>数据类型</th><th>单位</th><th>读写</th></tr></thead>
+  <tbody>${props.map(p=>`<tr><td>${p.name}</td><td><code>${p.id}</code></td><td>${p.type}</td><td>${p.unit}</td><td>${p.mode==='读写'?'<span class="tag info">读写</span>':'<span class="tag">只读</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function renderServices(){
+  document.getElementById('pmBody').innerHTML=`<div class="card" style="padding:0"><table><thead><tr><th>服务名称</th><th>标识符</th><th>输入参数</th><th>输出参数</th></tr></thead>
+  <tbody>${services.map(s=>`<tr><td>${s.name}</td><td><code>${s.id}</code></td><td>${s.in}</td><td>${s.out}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function renderEvents(){
+  document.getElementById('pmBody').innerHTML=`<div class="card" style="padding:0"><table><thead><tr><th>事件名称</th><th>标识符</th><th>触发位置</th><th>输出参数</th></tr></thead>
+  <tbody>${events.map(e=>`<tr><td>${e.name}</td><td><code>${e.id}</code></td><td>${e.pos}</td><td>${e.out}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function renderTM(){
+  const json={productKey:'env_ctrl',name:'智能环境测控仪',
+    properties:props.map(p=>({identifier:p.id,name:p.name,dataType:p.type,unit:p.unit,accessMode:p.mode})),
+    services:services.map(s=>({identifier:s.id,name:s.name})),
+    events:events.map(e=>({identifier:e.id,name:e.name,trigger:e.pos}))};
+  document.getElementById('pmBody').innerHTML=`<pre>${JSON.stringify(json,null,2)}</pre>`;
+}
+function scrUsers(){
+  if(curRole!=='admin') return '<div class="note">仅管理员可访问用户与权限。</div>';
+  return `
+  <div class="toolbar"><div class="left"><span class="tag info">RBAC 角色：种植户 / 观察员 / 管理员</span></div><button class="btn-add" onclick="toast('新增用户（原型）')">+ 新增用户</button></div>
+  <div class="card" style="padding:0"><table><thead><tr><th>用户名</th><th>角色</th><th>归属</th><th>状态</th><th>操作</th></tr></thead>
+  <tbody>${users.map(u=>`<tr><td>${u.name}</td><td><span class="tag ${u.role==='管理员'?'blue':u.role==='观察员'?'info':'ok'}">${u.role}</span></td><td>${u.farm}</td><td><span class="tag ok">${u.status}</span></td><td><button class="btn-sm" onclick="toast('冻结/编辑（原型）')">管理</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function scrAuth(){
+  const canEdit=curRole!=='observer';
+  return `
+  ${curRole==='observer'?'<div class="note">观察员为被授权方，无授权管理权限。</div>':''}
+  <div class="toolbar"><div class="left"><span class="tag info">P-06 协作授权：种植户可授权观察员只读本人设备</span></div>${canEdit?'<button class="btn-add" onclick="openAuth()">+ 授权观察员</button>':''}</div>
+  <div class="card" style="padding:0"><table><thead><tr><th>种植户</th><th>观察员</th><th>授权范围</th><th>状态</th><th>操作</th></tr></thead>
+  <tbody>${auths.map(a=>`<tr><td>${a.grower}</td><td>${a.observer}</td><td>${a.scope}</td><td><span class="tag ok">${a.status}</span></td><td><button class="btn-sm danger" onclick="toast('解除授权（原型）')">解除</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+function tab(el){ el.parentElement.querySelectorAll('.t').forEach(x=>x.classList.remove('on')); el.classList.add('on'); }
+function bindScreen(id){
+  if(id==='alerts') renderAlertRules();
+  if(id==='products') renderProps();
+}
+/* ============ 弹窗 ============ */
+function openAddDevice(){ openModal('添加设备',`
+  <div class="field"><label>设备名称</label><input placeholder="如 4号棚-测控仪"/></div>
+  <div class="field"><label>所属产品</label><input value="env_ctrl（智能环境测控仪）" disabled/></div>
+  <div class="field"><label>位置</label><input placeholder="如 东棚"/></div>
+  <div class="field"><label>描述</label><input placeholder="选填"/></div>`,()=>{toast('设备已注册，deviceSecret 仅此一次明文返回（原型）');showScreen('devices');}); }
+function openAddRule(){ openModal('新增告警规则',`
+  <div class="field"><label>规则名</label><input placeholder="如 低温告警"/></div>
+  <div class="field"><label>监测指标</label><input value="air_temperature"/></div>
+  <div class="field"><label>条件（运算符+阈值）</label><input value="< 10"/></div>
+  <div class="field"><label>级别</label><select style="width:100%;padding:9px"><option>warning</option><option>critical</option></select></div>`,()=>{toast('规则已保存至 alarm_rules（原型）');showScreen('alerts');}); }
+function openAuth(){ openModal('授权观察员',`
+  <div class="field"><label>观察员账号</label><input placeholder="observer_xxx"/></div>
+  <div class="field"><label>授权范围</label><input placeholder="如 东棚全部设备"/></div>`,()=>{toast('授权成功，观察员可只读查看（原型）');showScreen('auth');}); }
+function openModal(title,body,ok){ document.getElementById('modalTitle').textContent=title; document.getElementById('modalBody').innerHTML=body; const m=document.getElementById('modal'); m.classList.add('show'); document.getElementById('modalOk').onclick=()=>{closeModal();ok&&ok();}; }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+let toastT;
+function toast(msg){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(t);} t.textContent=msg; t.style.display='block'; clearTimeout(toastT); toastT=setTimeout(()=>t.style.display='none',2200); }
+</script>
+</body>
+</html>
